@@ -1,6 +1,6 @@
 # ===============================
 #  ETAPA 1: VERIFICACION DE HERRAMIENTAS Y CONFIGURACION
-#  Verifica herramientas Sysinternals y configuración del sistema
+#  Verifica herramientas Sysinternals y configuracion del sistema
 # ===============================
 
 param(
@@ -121,12 +121,12 @@ function Show-AvailableTools {
 # ===============================
 #  EJECUCION PRINCIPAL
 # ===============================
-Write-Host "[STAGE1] Iniciando verificación de herramientas..." -ForegroundColor Green
+Write-Host "[STAGE1] Iniciando verificacion de herramientas..." -ForegroundColor Green
 
 # Mostrar herramientas disponibles
 Show-AvailableTools
 
-# Verificar versión de PowerShell
+# Verificar version de PowerShell
 Write-Host "[STAGE1] Verificando PowerShell..." -ForegroundColor Green
 if ($PSVersionTable.PSVersion.Major -lt 5 -or ($PSVersionTable.PSVersion.Major -eq 5 -and $PSVersionTable.PSVersion.Minor -lt 1)) {
     Write-Host "[ERROR] Este script requiere PowerShell 5.1 o superior." -ForegroundColor Red
@@ -145,8 +145,8 @@ if (([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::
     exit 1
 }
 
-# Verificar parámetros
-Write-Host "[STAGE1] Configuración actual:" -ForegroundColor Green
+# Verificar parametros
+Write-Host "[STAGE1] Configuracion actual:" -ForegroundColor Green
 Write-Host "  - Modo Debug: $($DebugMode.ToString())" -ForegroundColor Gray
 Write-Host "  - Modo Affinity: $AffinityMode" -ForegroundColor Gray
 
@@ -154,4 +154,4 @@ Write-Host ""
 Write-Host "=============================================" -ForegroundColor Green
 Write-Host "   ETAPA 1: COMPLETADA EXITOSAMENTE" -ForegroundColor White
 Write-Host "=============================================" -ForegroundColor Green
-Write-Host "[STAGE1] Verificación de herramientas completada" -ForegroundColor Green
+Write-Host "[STAGE1] Verificacion de herramientas completada" -ForegroundColor Green

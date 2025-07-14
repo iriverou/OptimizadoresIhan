@@ -1,6 +1,6 @@
 # ===============================
 #  ETAPA 6: OPTIMIZACIONES DE REGISTRO Y GRAFICOS
-#  Aplica optimizaciones de registro y configuraciones gráficas
+#  Aplica optimizaciones de registro y configuraciones graficas
 # ===============================
 
 param(
@@ -109,19 +109,19 @@ function Set-AdvancedPerformanceOptimizations {
     Backup-RegistryGaming
     
     try {
-        # Optimizar separación de prioridades para gaming
+        # Optimizar separacion de prioridades para gaming
         $perfKey = "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl"
         if (Test-Path $perfKey) {
             Set-ItemProperty -Path $perfKey -Name "Win32PrioritySeparation" -Value 0x26 -Type DWord -ErrorAction SilentlyContinue
-            Write-Host "[REG] Separación de prioridades optimizada para gaming" -ForegroundColor Gray
+            Write-Host "[REG] Separacion de prioridades optimizada para gaming" -ForegroundColor Gray
         }
         
-        # Optimizar gestión de memoria
+        # Optimizar gestion de memoria
         $memKey = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
         if (Test-Path $memKey) {
             Set-ItemProperty -Path $memKey -Name "LargeSystemCache" -Value 0 -Type DWord -ErrorAction SilentlyContinue
             Set-ItemProperty -Path $memKey -Name "DisablePagingExecutive" -Value 1 -Type DWord -ErrorAction SilentlyContinue
-            Write-Host "[REG] Gestión de memoria optimizada" -ForegroundColor Gray
+            Write-Host "[REG] Gestion de memoria optimizada" -ForegroundColor Gray
         }
         
         # Optimizar sistema de archivos
@@ -153,12 +153,12 @@ function Set-AdvancedPerformanceOptimizations {
             Write-Host "[REG] Interfaces de red optimizadas" -ForegroundColor Gray
         }
         
-        # Optimizar GPU según el fabricante
+        # Optimizar GPU segun el fabricante
         $gpuVendor = Get-GPUVendor
         Write-Host "[REG] GPU detectada: $gpuVendor" -ForegroundColor Cyan
         
         if ($gpuVendor -eq "NVIDIA") {
-            # Optimizaciones específicas para NVIDIA
+            # Optimizaciones especificas para NVIDIA
             $nvidiaKey = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"
             if (-not (Test-Path $nvidiaKey)) {
                 New-Item -Path $nvidiaKey -Force | Out-Null
@@ -174,7 +174,7 @@ function Set-AdvancedPerformanceOptimizations {
 }
 
 function Optimize-GraphicsAndMultimedia {
-    Write-Host "[REG] Optimizando gráficos y multimedia..." -ForegroundColor Green
+    Write-Host "[REG] Optimizando graficos y multimedia..." -ForegroundColor Green
     
     try {
         # Optimizar DirectX
@@ -215,10 +215,10 @@ function Optimize-GraphicsAndMultimedia {
         Set-ItemProperty -Path $gamesKey -Name "Priority" -Value 6 -Type DWord -ErrorAction SilentlyContinue
         Set-ItemProperty -Path $gamesKey -Name "Scheduling Category" -Value "High" -Type String -ErrorAction SilentlyContinue
         Set-ItemProperty -Path $gamesKey -Name "SFIO Priority" -Value "High" -Type String -ErrorAction SilentlyContinue
-        Write-Host "[REG] Configuración de juegos optimizada" -ForegroundColor Gray
+        Write-Host "[REG] Configuracion de juegos optimizada" -ForegroundColor Gray
         
     } catch {
-        Write-Host "[WARN] Error optimizando gráficos y multimedia: $_" -ForegroundColor Yellow
+        Write-Host "[WARN] Error optimizando graficos y multimedia: $_" -ForegroundColor Yellow
     }
 }
 
@@ -305,24 +305,83 @@ function Restore-AdvancedPerformanceOptimizations {
 # ===============================
 #  EJECUCION PRINCIPAL
 # ===============================
-Write-Host "[STAGE6] Iniciando optimizaciones de registro y gráficos..." -ForegroundColor Green
+Write-Host "[STAGE6] Iniciando optimizaciones de registro y graficos..." -ForegroundColor Green
 
 # Aplicar optimizaciones avanzadas de rendimiento
 Set-AdvancedPerformanceOptimizations
 
-# Optimizar gráficos y multimedia
+# Optimizar graficos y multimedia
 Optimize-GraphicsAndMultimedia
 
 # Desactivar FSO, HAGS y Focus Assist
 Disable-FSO-HAGS-FocusAssist
 
+# ===============================
+#  SELECCION INTERACTIVA DE PROCESO
+# ===============================
+Write-Host ""
+Write-Host "[STAGE6] Seleccion de proceso para optimizacion especifica..." -ForegroundColor Cyan
+
+try {
+    # Obtener los 10 procesos que mas RAM consumen
+    $topProcesses = Get-Process | Sort-Object -Property WorkingSet -Descending | Select-Object -First 10
+
+    Write-Host "\nTOP 10 PROCESOS POR USO DE MEMORIA (RAM):" -ForegroundColor Yellow
+    Write-Host "=================================================" -ForegroundColor Yellow
+    Write-Host ("{0,-3} {1,-25} {2,10} {3,10}" -f '#', 'Nombre', 'RAM(MB)', 'CPU') -ForegroundColor White
+    Write-Host ("{0,-3} {1,-25} {2,10} {3,10}" -f '---', '-------------------------', '--------', '--------') -ForegroundColor White
+
+    for ($i = 0; $i -lt $topProcesses.Count; $i++) {
+        $proc = $topProcesses[$i]
+        $ram = [math]::Round($proc.WorkingSet / 1MB, 2)
+        $cpu = if ($proc.CPU) { [math]::Round($proc.CPU, 2) } else { 0 }
+        Write-Host ("{0,-3} {1,-25} {2,10} {3,10}" -f ($i+1), $proc.ProcessName, $ram, $cpu) -ForegroundColor Gray
+    }
+
+    Write-Host ""
+    Write-Host "[INPUT] Ingresa el numero del proceso que deseas optimizar (1-10): " -NoNewline -ForegroundColor Cyan
+    $selection = $Host.UI.ReadLine()
+
+    if ($selection -notmatch '^[1-9]$|^10$') {
+        Write-Host "[ERROR] Seleccion invalida. Saltando optimizacion de proceso especifico." -ForegroundColor Red
+    } else {
+        $selectedProc = $topProcesses[$selection-1]
+        Write-Host "[INFO] Proceso seleccionado: $($selectedProc.ProcessName) (PID: $($selectedProc.Id))" -ForegroundColor Cyan
+
+        Write-Host "[CONFIRM] Deseas optimizar este proceso? (SI/NO): " -NoNewline -ForegroundColor Yellow
+        $confirm = $Host.UI.ReadLine()
+        if ($confirm -eq 'SI') {
+            try {
+                $handle = $selectedProc.Handle
+                Add-Type -TypeDefinition @"
+                    using System;
+                    using System.Runtime.InteropServices;
+                    public class ProcessMemory {
+                        [DllImport("psapi.dll")]
+                        public static extern bool EmptyWorkingSet(IntPtr hwProc);
+                    }
+"@
+                [ProcessMemory]::EmptyWorkingSet($handle) | Out-Null
+                Write-Host "[SUCCESS] Memoria del proceso optimizada exitosamente." -ForegroundColor Green
+            } catch {
+                Write-Host "[ERROR] No se pudo optimizar el proceso: $($_.Exception.Message)" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "[CANCEL] Optimizacion de proceso cancelada por el usuario." -ForegroundColor Yellow
+        }
+    }
+
+} catch {
+    Write-Host "[WARN] No se pudo mostrar la seleccion de procesos: $_" -ForegroundColor Yellow
+}
+
 Write-Host ""
 Write-Host "=============================================" -ForegroundColor Green
 Write-Host "   ETAPA 6: COMPLETADA EXITOSAMENTE" -ForegroundColor White
 Write-Host "=============================================" -ForegroundColor Green
-Write-Host "[STAGE6] Optimizaciones de registro y gráficos completadas" -ForegroundColor Green
+Write-Host "[STAGE6] Optimizaciones de registro y graficos completadas" -ForegroundColor Green
 
-# Guardar información para restauración posterior
+# Guardar informacion para restauracion posterior
 $registryInfo = @{
     RegistryBackup = $script:registryBackup
     OriginalValues = @{
@@ -333,7 +392,7 @@ $registryInfo = @{
     Timestamp = Get-Date
 }
 
-# Crear archivo de configuración temporal
+# Crear archivo de configuracion temporal
 $configPath = Join-Path $env:TEMP "OptimizadorRegistro.json"
 $registryInfo | ConvertTo-Json -Depth 3 | Out-File -FilePath $configPath -Encoding UTF8
-Write-Host "[INFO] Configuración guardada en: $configPath" -ForegroundColor Gray
+Write-Host "[INFO] Configuracion guardada en: $configPath" -ForegroundColor Gray

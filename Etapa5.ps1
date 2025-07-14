@@ -1,6 +1,6 @@
 # ===============================
 #  ETAPA 5: LIBERACION DE MEMORIA RAM
-#  Libera memoria RAM usando técnicas avanzadas y herramientas Sysinternals
+#  Libera memoria RAM usando tecnicas avanzadas y herramientas Sysinternals
 # ===============================
 
 param(
@@ -59,10 +59,10 @@ function Get-RAMMapPath {
 #  FUNCIONES DE LIBERACION DE MEMORIA
 # ===============================
 function Show-MemoryOptimizationInfo {
-    Write-Host "[MEM] Información de memoria antes de optimizar:" -ForegroundColor Cyan
+    Write-Host "[MEM] Informacion de memoria antes de optimizar:" -ForegroundColor Cyan
     
     try {
-        # Obtener información de memoria del sistema
+        # Obtener informacion de memoria del sistema
         $memInfo = Get-CimInstance -ClassName Win32_OperatingSystem
         $totalMemory = [math]::Round($memInfo.TotalVisibleMemorySize / 1MB, 2)
         $availableMemory = [math]::Round($memInfo.FreePhysicalMemory / 1MB, 2)
@@ -73,7 +73,7 @@ function Show-MemoryOptimizationInfo {
         Write-Host "[MEM] Memoria disponible: $availableMemory GB" -ForegroundColor Gray
         Write-Host "[MEM] Memoria en uso: $usedMemory GB ($usedPercentage%)" -ForegroundColor Gray
         
-        # Información adicional de rendimiento
+        # Informacion adicional de rendimiento
         $perfInfo = Get-CimInstance -ClassName Win32_PerfRawData_PerfOS_Memory
         if ($perfInfo) {
             $commitLimit = [math]::Round($perfInfo.CommitLimit / 1MB, 2)
@@ -85,17 +85,17 @@ function Show-MemoryOptimizationInfo {
         }
         
     } catch {
-        Write-Host "[WARN] No se pudo obtener información detallada de memoria" -ForegroundColor Yellow
+        Write-Host "[WARN] No se pudo obtener informacion detallada de memoria" -ForegroundColor Yellow
     }
 }
 
 function Clear-Memory {
-    Write-Host "[MEM] Iniciando liberación de memoria..." -ForegroundColor Green
+    Write-Host "[MEM] Iniciando liberacion de memoria..." -ForegroundColor Green
     
     # Método 1: Usar RAMMap si está disponible
     $ramMapPath = Get-RAMMapPath
     if ($ramMapPath) {
-        Write-Host "[MEM] Usando RAMMap para liberación avanzada..." -ForegroundColor Green
+        Write-Host "[MEM] Usando RAMMap para liberacion avanzada..." -ForegroundColor Green
         try {
             # Limpiar Standby List
             & $ramMapPath -Et -accepteula 2>$null
@@ -127,9 +127,9 @@ function Clear-Memory {
         }
     }
     
-    # Método 3: Técnicas nativas de PowerShell
+    # Metodo 3: Tecnicas nativas de PowerShell
     if (-not $script:memoryOptimized) {
-        Write-Host "[MEM] Usando métodos nativos de PowerShell..." -ForegroundColor Green
+        Write-Host "[MEM] Usando metodos nativos de PowerShell..." -ForegroundColor Green
         try {
             # Forzar garbage collection
             [System.GC]::Collect()
@@ -151,7 +151,7 @@ function Clear-Memory {
             
             $script:memoryOptimized = $true
         } catch {
-            Write-Host "[WARN] Error en métodos nativos: $_" -ForegroundColor Yellow
+            Write-Host "[WARN] Error en metodos nativos: $_" -ForegroundColor Yellow
         }
     }
     
@@ -178,21 +178,21 @@ function Clear-Memory {
         Write-Host "[MEM] Working set del proceso actual optimizado" -ForegroundColor Gray
         
     } catch {
-        Write-Host "[WARN] No se pudo usar API de Windows para optimización: $_" -ForegroundColor Yellow
+        Write-Host "[WARN] No se pudo usar API de Windows para optimizacion: $_" -ForegroundColor Yellow
     }
     
-    # Mostrar información post-optimización
+    # Mostrar informacion post-optimizacion
     Start-Sleep -Seconds 2
     Show-MemoryOptimizationInfo
     
-    Write-Host "[MEM] Liberación de memoria completada" -ForegroundColor Green
+    Write-Host "[MEM] Liberacion de memoria completada" -ForegroundColor Green
 }
 
 function Optimize-VirtualMemory {
     Write-Host "[MEM] Optimizando memoria virtual..." -ForegroundColor Green
     
     try {
-        # Obtener información del archivo de paginación
+        # Obtener informacion del archivo de paginacion
         $pageFiles = Get-CimInstance -ClassName Win32_PageFileUsage
         foreach ($pageFile in $pageFiles) {
             $size = [math]::Round($pageFile.AllocatedBaseSize / 1024, 2)

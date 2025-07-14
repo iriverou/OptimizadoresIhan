@@ -1,6 +1,6 @@
 # ===============================
 #  MAIN - COORDINADOR DE ETAPAS DEL OPTIMIZADOR
-#  Ejecuta todas las etapas en orden o etapas específicas
+#  Ejecuta todas las etapas en orden o etapas especificas
 # ===============================
 
 param(
@@ -91,7 +91,7 @@ function Invoke-Etapa {
             Write-Host "[MAIN] Etapa $etapaNumber completada exitosamente" -ForegroundColor Green
             return $true
         } else {
-            Write-Host "[MAIN] Etapa $etapaNumber falló con código $LASTEXITCODE" -ForegroundColor Red
+            Write-Host "[MAIN] Etapa $etapaNumber fallo con codigo $LASTEXITCODE" -ForegroundColor Red
             return $false
         }
     } catch {
@@ -125,7 +125,7 @@ function Wait-ForGameProcess {
                 $proc.PriorityClass = 'High'
                 Write-Host "[MAIN] Prioridad alta aplicada" -ForegroundColor Gray
                 
-                # Aplicar afinidad de CPU (todos los núcleos excepto el 0)
+                # Aplicar afinidad de CPU (todos los nucleos excepto el 0)
                 $cpuCount = [Environment]::ProcessorCount
                 if ($cpuCount -gt 1) {
                     $affinity = [int]([math]::Pow(2, $cpuCount) - 2)
@@ -148,21 +148,21 @@ function Wait-ForGameProcess {
 
 function Restore-SystemConfiguration {
     if ($NoRestore) {
-        Write-Host "[MAIN] Restauración desactivada" -ForegroundColor Yellow
+        Write-Host "[MAIN] Restauracion desactivada" -ForegroundColor Yellow
         return
     }
     
     Write-Host ""
-    Write-Host "[MAIN] Iniciando restauración del sistema..." -ForegroundColor Yellow
+    Write-Host "[MAIN] Iniciando restauracion del sistema..." -ForegroundColor Yellow
     
     try {
-        # Restaurar plan de energía
+        # Restaurar plan de energia
         $energyConfig = Join-Path $env:TEMP "OptimizadorEnergia.json"
         if (Test-Path $energyConfig) {
             $config = Get-Content $energyConfig | ConvertFrom-Json
             if ($config.OriginalPlan -and $config.HighPerfPlan -and $config.OriginalPlan -ne $config.HighPerfPlan) {
                 & powercfg /setactive $config.OriginalPlan 2>$null
-                Write-Host "[MAIN] Plan de energía restaurado" -ForegroundColor Green
+                Write-Host "[MAIN] Plan de energia restaurado" -ForegroundColor Green
             }
         }
         
@@ -192,7 +192,7 @@ function Restore-SystemConfiguration {
         if (Test-Path $registryConfig) {
             $config = Get-Content $registryConfig | ConvertFrom-Json
             if ($config.OriginalValues) {
-                # Restaurar separación de prioridades
+                # Restaurar separacion de prioridades
                 if ($config.OriginalValues.PrioritySeparation) {
                     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "Win32PrioritySeparation" -Value $config.OriginalValues.PrioritySeparation.Win32PrioritySeparation -ErrorAction SilentlyContinue
                 }
@@ -210,15 +210,15 @@ function Restore-SystemConfiguration {
             }
         }
         
-        # Limpiar archivos temporales de configuración
+        # Limpiar archivos temporales de configuracion
         Remove-Item -Path $energyConfig -ErrorAction SilentlyContinue
         Remove-Item -Path $serviceConfig -ErrorAction SilentlyContinue
         Remove-Item -Path $registryConfig -ErrorAction SilentlyContinue
         
-        Write-Host "[MAIN] Restauración completada" -ForegroundColor Green
+        Write-Host "[MAIN] Restauracion completada" -ForegroundColor Green
         
     } catch {
-        Write-Host "[WARN] Error durante la restauración: $_" -ForegroundColor Yellow
+        Write-Host "[WARN] Error durante la restauracion: $_" -ForegroundColor Yellow
     }
 }
 
@@ -231,15 +231,15 @@ $failedStages = @()
 
 # Definir etapas disponibles
 $etapas = @{
-    '1' = 'Verificación de herramientas y configuración'
-    '2' = 'Configuración de energía'
-    '3' = 'Optimización de procesos y servicios'
+    '1' = 'Verificacion de herramientas y configuracion'
+    '2' = 'Configuracion de energia'
+    '3' = 'Optimizacion de procesos y servicios'
     '4' = 'Limpieza de archivos y cache'
-    '5' = 'Liberación de memoria RAM'
-    '6' = 'Optimizaciones de registro y gráficos'
+    '5' = 'Liberacion de memoria RAM'
+    '6' = 'Optimizaciones de registro y graficos'
 }
 
-# Determinar qué etapas ejecutar
+# Determinar que etapas ejecutar
 $etapasToRun = @()
 if ($RunStage -eq 'all') {
     $etapasToRun = @('1', '2', '3', '4', '5', '6')
@@ -273,14 +273,10 @@ foreach ($etapa in $etapasToRun) {
     } else {
         $failedStages += $etapa
         
-        # Preguntar si continuar en caso de fallo
+        # Continuar automaticamente en caso de fallo
         Write-Host ""
-        Write-Host "[MAIN] ¿Continuar con las siguientes etapas? (S/N)" -ForegroundColor Yellow
-        $response = Read-Host
-        if ($response -notmatch '^[Ss]') {
-            Write-Host "[MAIN] Ejecución cancelada por el usuario" -ForegroundColor Yellow
-            break
-        }
+        Write-Host "[MAIN] Continuando con las siguientes etapas..." -ForegroundColor Yellow
+        Start-Sleep -Seconds 2
     }
 }
 
@@ -328,5 +324,4 @@ Write-Host ""
 Write-Host "=============================================" -ForegroundColor Green
 Write-Host "   OPTIMIZADOR CS2 - FINALIZADO" -ForegroundColor White
 Write-Host "=============================================" -ForegroundColor Green
-Write-Host "[MAIN] Presiona cualquier tecla para cerrar..." -ForegroundColor Gray
-Read-Host
+Write-Host "[MAIN] Optimizacion completada exitosamente" -ForegroundColor Green

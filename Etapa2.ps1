@@ -1,6 +1,6 @@
 # ===============================
 #  ETAPA 2: CONFIGURACION DE ENERGIA
-#  Configura el plan de energía para máximo rendimiento
+#  Configura el plan de energia para maximo rendimiento
 # ===============================
 
 param(
@@ -21,7 +21,7 @@ Write-Host "=============================================" -ForegroundColor Yell
 Write-Host "   ETAPA 2: CONFIGURACION DE ENERGIA" -ForegroundColor White
 Write-Host "=============================================" -ForegroundColor Yellow
 
-# Variables globales para planes de energía
+# Variables globales para planes de energia
 $script:originalPlan = $null
 $script:highPerfPlan = $null
 
@@ -66,11 +66,11 @@ function Set-PowerPlanByGuid($guid) {
 
 function Get-HighPerformancePlanGuid {
     try {
-        # Obtener todos los planes de energía disponibles
+        # Obtener todos los planes de energia disponibles
         $powerPlans = & powercfg /list 2>$null
         
         # Buscar variaciones del plan de alto rendimiento
-        $highPerfNames = @('High performance', 'Alto rendimiento', 'Rendimiento alto', 'Ultimate Performance', 'Máximo rendimiento')
+        $highPerfNames = @('High performance', 'Alto rendimiento', 'Rendimiento alto', 'Ultimate Performance', 'Maximo rendimiento')
         
         foreach ($line in $powerPlans) {
             if ($line -match '\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b') {
@@ -83,7 +83,7 @@ function Get-HighPerformancePlanGuid {
             }
         }
         
-        # Si no se encuentra, intentar crear uno usando el GUID estándar
+        # Si no se encuentra, intentar crear uno usando el GUID estandar
         $standardGuid = "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c"
         & powercfg /setactive $standardGuid 2>$null
         if ($LASTEXITCODE -eq 0) {
@@ -100,7 +100,7 @@ function Get-HighPerformancePlanGuid {
 # ===============================
 #  EJECUCION PRINCIPAL
 # ===============================
-Write-Host "[STAGE2] Iniciando configuración de energía..." -ForegroundColor Green
+Write-Host "[STAGE2] Iniciando configuracion de energia..." -ForegroundColor Green
 
 # Obtener plan actual
 $script:originalPlan = Get-CurrentPowerPlan
@@ -119,25 +119,25 @@ if ($script:highPerfPlan) {
     if (Set-PowerPlanByGuid $script:highPerfPlan) {
         Write-Host "[POWER] Plan de alto rendimiento activado" -ForegroundColor Green
         
-        # Configurar opciones adicionales del plan de energía
+        # Configurar opciones adicionales del plan de energia
         Write-Host "[POWER] Configurando opciones avanzadas..." -ForegroundColor Green
         
         # Desactivar USB selective suspend
         & powercfg /setacvalueindex $script:highPerfPlan 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 0 2>$null
         & powercfg /setdcvalueindex $script:highPerfPlan 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 0 2>$null
         
-        # Configurar modo de procesador a máximo rendimiento
+        # Configurar modo de procesador a maximo rendimiento
         & powercfg /setacvalueindex $script:highPerfPlan 54533251-82be-4824-96c1-47b60b740d00 bc5038f7-23e0-4960-96da-33abaf5935ec 100 2>$null
         & powercfg /setdcvalueindex $script:highPerfPlan 54533251-82be-4824-96c1-47b60b740d00 bc5038f7-23e0-4960-96da-33abaf5935ec 100 2>$null
         
-        # Desactivar hibernación del disco duro
+        # Desactivar hibernacion del disco duro
         & powercfg /setacvalueindex $script:highPerfPlan 0012ee47-9041-4b5d-9b77-535fba8b1442 6738e2c4-e8a5-4a42-b16a-e040e769756e 0 2>$null
         & powercfg /setdcvalueindex $script:highPerfPlan 0012ee47-9041-4b5d-9b77-535fba8b1442 6738e2c4-e8a5-4a42-b16a-e040e769756e 0 2>$null
         
         # Aplicar cambios
         & powercfg /setactive $script:highPerfPlan 2>$null
         
-        Write-Host "[POWER] Configuración avanzada aplicada" -ForegroundColor Green
+        Write-Host "[POWER] Configuracion avanzada aplicada" -ForegroundColor Green
     } else {
         Write-Host "[WARN] No se pudo activar el plan de alto rendimiento" -ForegroundColor Yellow
     }
@@ -149,16 +149,16 @@ Write-Host ""
 Write-Host "=============================================" -ForegroundColor Green
 Write-Host "   ETAPA 2: COMPLETADA EXITOSAMENTE" -ForegroundColor White
 Write-Host "=============================================" -ForegroundColor Green
-Write-Host "[STAGE2] Configuración de energía completada" -ForegroundColor Green
+Write-Host "[STAGE2] Configuracion de energia completada" -ForegroundColor Green
 
-# Guardar información para restauración posterior
+# Guardar informacion para restauracion posterior
 $planInfo = @{
     OriginalPlan = $script:originalPlan
     HighPerfPlan = $script:highPerfPlan
     Timestamp = Get-Date
 }
 
-# Crear archivo de configuración temporal
+# Crear archivo de configuracion temporal
 $configPath = Join-Path $env:TEMP "OptimizadorEnergia.json"
 $planInfo | ConvertTo-Json | Out-File -FilePath $configPath -Encoding UTF8
-Write-Host "[INFO] Configuración guardada en: $configPath" -ForegroundColor Gray
+Write-Host "[INFO] Configuracion guardada en: $configPath" -ForegroundColor Gray
